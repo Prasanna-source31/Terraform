@@ -3,8 +3,8 @@ name: OPA Scan
 on:
   issues:
    type:
-    -opened
     -closed
+    -opened
 
 jobs:
   opa_scan:
@@ -14,19 +14,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install conftest
+    - name: Run OPA scan using Docker
       run: |
-       LATEST_VERSION=$(wget -O - "https://api.github.com/repos/open-policy-agent/conftest/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | cut -c 2-)
-       wget "https://github.com/open-policy-agent/conftest/releases/download/v${LATEST_VERSION}/conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz"
-       tar xzf conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
-       sudo mv conftest /usr/local/bin
-
-    - name: Run OPA scan
-      run: |
-        conftest test .
+        docker run --rm -v $(pwd):/project instrumenta/conftest test /project
         OPA_EXIT_CODE=$?
         if [ $OPA_EXIT_CODE -eq 0 ]; then
           echo "OPA scan passed successfully."
         else
           echo "OPA scan failed with policy violations."
-        fi
