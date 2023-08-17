@@ -1,9 +1,10 @@
-name: Terraform Code Scan
+name: tfsec
 
 on:
-  push:
-    branches:
-      - main
+  issues:
+   type:
+    -opened
+    -closed
 
 jobs:
   terraform_scan:
