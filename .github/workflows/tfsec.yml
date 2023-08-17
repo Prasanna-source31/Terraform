@@ -22,5 +22,10 @@ jobs:
 
     - name: Run tfsec scan
       run: |
-        tfsec . || true
+        tfsec . || true > tfsec_output.json
         echo "Terraform code scan completed."
+    - name: Upload Tfsec Output as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+          name: tfsec_output
+          path: tfsec_output.json
