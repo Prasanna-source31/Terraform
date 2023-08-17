@@ -1,4 +1,4 @@
-name: Terraform Code Scan
+name: tfsec
 
 on:
   issues:
@@ -20,5 +20,15 @@ jobs:
         chmod +x tfsec
         sudo mv tfsec /usr/local/bin/
 
-    - name: Run tfsec scan
-      run: tfsec .
+    - name: Run tfsec scan and save results
+      run: |
+        tfsec . --format json > tfsec_results.json
+        tfsec . --format junit > tfsec_results.xml
+
+    - name: Upload results
+      uses: actions/upload-artifact@v2
+      with:
+        name: tfsec-results
+        path: |
+          tfsec_results.json
+          tfsec_results.xml
