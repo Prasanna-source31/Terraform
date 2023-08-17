@@ -1,20 +1,25 @@
-name: Run OPA Tests
-on: 
- issues:
-  type:
-   -closed
-   -opened
+name: Conftest Terraform Scan
+
+on:
+  issues:
+    type:
+      - closed
+      - opened
+
 jobs:
-  Run-OPA-Tests:
+  conftest_terraform_scan:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Setup OPA
-      uses: open-policy-agent/setup-opa@v2
-      with:
-        version: latest
+    - name: Install conftest
+      run: |
+        curl -L -o conftest https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_$(uname -s)_$(uname -m)
+        chmod +x conftest
+        sudo mv conftest /usr/local/bin/
 
-    - name: Run OPA Tests
-      run: opa test ./*.tf -v
+    - name: Run Conftest Terraform scan
+      run: |
+        conftest test ./
