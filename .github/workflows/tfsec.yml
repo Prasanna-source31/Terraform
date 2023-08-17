@@ -2,15 +2,20 @@ name: tfsec
 
 on:
   issues:
-   type:
-    -opened
-    -closed
+    types:
+      - opened
+      - closed
 
 jobs:
   terraform_scan:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Use Node.js 16
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -22,10 +27,11 @@ jobs:
 
     - name: Run tfsec scan
       run: |
-        tfsec . || true > tfsec_output.json
+        tfsec . --format json > tfsec_output.json || true
         echo "Terraform code scan completed."
+
     - name: Upload Tfsec Output as Artifact
       uses: actions/upload-artifact@v2
       with:
-          name: tfsec_output
-          path: tfsec_output.json
+        name: tfsec_output
+        path: tfsec_output.json
