@@ -1,9 +1,7 @@
 on:
-  
-  issues:
-   type:
-    -opened
-    -closed
+  push:
+    branches:
+      - main
 
 jobs:
   terrascan_job_aws:
