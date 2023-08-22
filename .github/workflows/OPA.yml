@@ -1,25 +1,37 @@
-name: Conftest Terraform Scan
+name: OPA Scan
 
-on:
-  issues:
-    type:
-      - closed
-      - opened
+on: 
+ issues:
+  type:
+   -closed
+   -opened
 
 jobs:
-  conftest_terraform_scan:
+  security_scan:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install conftest
-      run: |
-        curl -L -o conftest https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_$(uname -s)_$(uname -m)
-        chmod +x conftest
-        sudo mv conftest /usr/local/bin/
+    - name: Pull OPA Docker image
+      run: docker pull openpolicyagent/opa:latest
 
-    - name: Run Conftest Terraform scan
+    - name: Run OPA Scan
       run: |
-        conftest test ./
+        # Print directory contents
+        ls -la
+
+        # Run OPA against Terraform code using Docker
+        docker run --rm -v $(pwd):/data openpolicyagent/opa eval -d /data/OPA_policy.rego 'data.main'
+
+        # Capture the exit code of the OPA evaluation
+        OPA_EXIT_CODE=$?
+
+        # Check the exit code and exit accordingly
+        if [ $OPA_EXIT_CODE -eq 0 ]; then
+          echo "OPA scan passed successfully."
+        else
+          echo "OPA scan failed with policy violations."
+        fi
+        exit $OPA_EXIT_CODE
