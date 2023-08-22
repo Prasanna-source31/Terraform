@@ -1,10 +1,10 @@
 name: OPA Scan
 
-on: 
- issues:
-  type:
-   -closed
-   -opened
+on:
+  issues:
+   type:
+      - closed
+      - opened
 
 jobs:
   security_scan:
@@ -14,24 +14,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Pull OPA Docker image
-      run: docker pull openpolicyagent/opa:latest
+    - name: Install OPA
+      run: |
+        # Install OPA
+        curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64
+        chmod +x opa
+        sudo mv opa /usr/local/bin/
+
+        # Verify OPA installation
+        opa version
 
     - name: Run OPA Scan
       run: |
-        # Print directory contents
-        ls -la
+        # Run OPA against files using the policy in the current directory
+        opa eval --format pretty \
+          --data OPA_Policy.rego \
+          --input-files '**/*.tf'
 
-        # Run OPA against Terraform code using Docker
-        docker run --rm -v $(pwd):/data openpolicyagent/opa eval -d /data/OPA_policy.rego 'data.main'
-
-        # Capture the exit code of the OPA evaluation
-        OPA_EXIT_CODE=$?
-
-        # Check the exit code and exit accordingly
-        if [ $OPA_EXIT_CODE -eq 0 ]; then
-          echo "OPA scan passed successfully."
-        else
-          echo "OPA scan failed with policy violations."
-        fi
-        exit $OPA_EXIT_CODE
+      working-directory: ${{ github.workspace }}
