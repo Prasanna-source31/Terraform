@@ -3,8 +3,8 @@ name: OPA Scan
 on:
   issues:
    type:
-      - closed
-      - opened
+    -closed
+    -opened
 
 jobs:
   security_scan:
@@ -26,7 +26,9 @@ jobs:
 
     - name: Run OPA Scan
       run: |
-        # Run OPA against files using the policy in the current directory
-        find . -name '*.tf' | xargs opa eval --format pretty --data OPA_Policy.rego
+        # Find all .tf files and run OPA scan
+        for file in $(find . -name '*.tf'); do
+          opa eval --format pretty --data OPA_Policy.rego --input $file
+        done
 
       working-directory: ${{ github.workspace }}
