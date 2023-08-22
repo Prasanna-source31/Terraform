@@ -52,7 +52,7 @@ resource "azurerm_linux_virtual_machine" "example" {
 
 resource "azurerm_tags" "example" {
   tags = {
-    Environment = "Development"
+    Environment = "sample"
     Project     = "ProjectA"
   }
 }
