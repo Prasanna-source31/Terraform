@@ -24,11 +24,16 @@ jobs:
         # Verify OPA installation
         opa version
 
+    - name: Gather Terraform Files
+      run: |
+        # Find all .tf files and store in input JSON file
+        find . -name '*.tf' -exec echo '{}' \; > terraform_files.json
+
+      working-directory: ${{ github.workspace }}
+
     - name: Run OPA Scan
       run: |
-        # Find all .tf files and run OPA scan
-        for file in $(find . -name '*.tf'); do
-          opa eval --format pretty --data OPA_Policy.rego --input $file
-        done
+        # Run OPA against gathered Terraform files
+        opa eval --format pretty --data OPA_Policy.rego --input terraform_files.json
 
       working-directory: ${{ github.workspace }}
