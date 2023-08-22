@@ -27,8 +27,6 @@ jobs:
     - name: Run OPA Scan
       run: |
         # Run OPA against files using the policy in the current directory
-        opa eval --format pretty \
-          --data OPA_Policy.rego \
-          --input-files '**/*.tf'
+        find . -name '*.tf' | xargs opa eval --format pretty --data OPA_Policy.rego
 
       working-directory: ${{ github.workspace }}
